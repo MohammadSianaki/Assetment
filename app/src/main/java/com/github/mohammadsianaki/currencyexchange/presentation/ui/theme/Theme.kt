@@ -1,4 +1,4 @@
-package com.github.mohammadsianaki.currencyexchange.ui.theme
+package com.github.mohammadsianaki.currencyexchange.presentation.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
