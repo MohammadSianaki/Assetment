@@ -1,7 +1,6 @@
-package com.github.mohammadsianaki.currencyexchange.data.datastore
+package com.github.mohammadsianaki.currencyexchange.data.memory
 
 import kotlinx.coroutines.flow.StateFlow
-import java.lang.Thread.State
 
 interface ExchangeRateDataStore {
     fun setExchangeRates(rates: Map<String, Double>)

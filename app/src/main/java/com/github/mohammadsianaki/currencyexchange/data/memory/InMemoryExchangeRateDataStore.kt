@@ -1,4 +1,4 @@
-package com.github.mohammadsianaki.currencyexchange.data.datastore
+package com.github.mohammadsianaki.currencyexchange.data.memory
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
