@@ -3,4 +3,12 @@
     <string name="submit">Submit</string>
     <string name="currency_converter">Currency Converter</string>
     <string name="my_balances">MY BALANCES</string>
+    <string name="network_error">Network Error</string>
+    <string name="server_error">Internal Server Error</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="unauthorized_error">UnAuthroized Error</string>
+    <string name="bad_request">Bad Request</string>
+    <string name="forbidden_error">Forbidden</string>
+    <string name="not_found_error">Not Found</string>
+    <string name="not_acceptable_error">Not Acceptable</string>
 </resources>
