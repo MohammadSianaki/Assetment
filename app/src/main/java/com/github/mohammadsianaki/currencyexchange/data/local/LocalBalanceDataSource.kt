@@ -2,6 +2,8 @@ package com.github.mohammadsianaki.currencyexchange.data.local
 
 import com.github.mohammadsianaki.currencyexchange.data.local.db.LocalBalanceEntity
 import com.github.mohammadsianaki.currencyexchange.data.local.db.UserBalanceDao
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class LocalBalanceDataSource @Inject constructor(
@@ -15,5 +17,9 @@ class LocalBalanceDataSource @Inject constructor(
         balance.map { LocalBalanceEntity(symbol = it.key, amount = it.value) }.also {
             userBalanceDao.saveAll(it)
         }
+    }
+
+    override fun observeUserBalance(): Flow<Map<String, Double>> {
+        return userBalanceDao.observeAll().map { it.associateBy({ it.symbol }, { it.amount }) }
     }
 }

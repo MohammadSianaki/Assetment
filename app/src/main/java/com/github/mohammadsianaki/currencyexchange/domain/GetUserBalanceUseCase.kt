@@ -3,13 +3,14 @@ package com.github.mohammadsianaki.currencyexchange.domain
 import com.github.mohammadsianaki.currencyexchange.data.CurrencyExchangeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class GetAllCurrenciesRateUseCase(
+class GetUserBalanceUseCase @Inject constructor(
     private val repository: CurrencyExchangeRepository
 ) {
-    suspend fun get(): Flow<List<CurrencyEntity>> {
-        return repository.getExchangeRates().map {
-            it.map { entry -> CurrencyEntity(entry.key, entry.value) }
-        }
+
+    fun execute(): Flow<List<BalanceEntity>> {
+        return repository.observeUserBalance()
+            .map { it.map { BalanceEntity(symbol = it.key, amount = it.value) } }
     }
 }

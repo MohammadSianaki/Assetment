@@ -12,6 +12,9 @@ buildscript {
         dagger_version = "2.44"
         room_version = "2.5.0"
         nav_version = "2.5.3"
+        fragment_version = "1.5.5"
+        activity_version = "1.6.1"
+        appcompat_version = "1.6.1"
 
 
         androidx_test_version = "1.1.5"

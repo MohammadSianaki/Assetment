@@ -1,10 +1,10 @@
 package com.github.mohammadsianaki.currencyexchange.data
 
 import com.github.mohammadsianaki.currencyexchange.data.local.BalanceDataSource
-import com.github.mohammadsianaki.currencyexchange.data.local.db.LocalBalanceEntity
 import com.github.mohammadsianaki.currencyexchange.data.memory.ExchangeRateDataStore
 import com.github.mohammadsianaki.currencyexchange.data.remote.ExchangeRateDataSource
 import com.github.mohammadsianaki.currencyexchange.domain.BalanceEntity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
@@ -13,7 +13,7 @@ class CurrencyExchangeRepositoryImpl @Inject constructor(
     private val exchangeRateDataStore: ExchangeRateDataStore,
     private val balanceDataSource: BalanceDataSource
 ) : CurrencyExchangeRepository {
-    override suspend fun getExchangeRates(): StateFlow<Map<String, Double>> {
+    override fun observeExchangeRates(): StateFlow<Map<String, Double>> {
         return exchangeRateDataStore.getExchangesRates()
     }
 
@@ -24,6 +24,10 @@ class CurrencyExchangeRepositoryImpl @Inject constructor(
 
     override suspend fun getBalance(): Map<String, Double> {
         return balanceDataSource.getUserBalance()
+    }
+
+    override fun observeUserBalance(): Flow<Map<String, Double>> {
+        return balanceDataSource.observeUserBalance()
     }
 
     override suspend fun saveBalance(balances: List<BalanceEntity>) {
