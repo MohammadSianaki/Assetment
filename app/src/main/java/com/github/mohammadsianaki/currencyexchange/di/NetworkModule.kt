@@ -1,6 +1,7 @@
 package com.github.mohammadsianaki.currencyexchange.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.github.mohammadsianaki.currencyexchange.data.remote.api.CurrencyRateApi
 import dagger.Module
 import dagger.Provides
@@ -30,20 +31,31 @@ object NetworkModule {
 
     @Provides
     fun provideAuthInterceptorOkHttpClient(
-        @LoggingInterceptor loggingInterceptor: Interceptor, cache: Cache
+        @LoggingInterceptorQualifier loggingInterceptorQualifier: Interceptor,
+        @ChuckerInterceptorQualifier chuckerInterceptor: Interceptor,
+        cache: Cache
     ): OkHttpClient {
-        return OkHttpClient.Builder().addInterceptor(loggingInterceptor)
+        return OkHttpClient
+            .Builder()
+            .addInterceptor(loggingInterceptorQualifier)
+            .addInterceptor(chuckerInterceptor)
             .callTimeout(TIMEOUT_CONNECT, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_READ, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_WRITE, TimeUnit.SECONDS).cache(cache).build()
     }
 
     @Provides
-    @LoggingInterceptor
+    @LoggingInterceptorQualifier
     fun provideLoggingInterceptor(): Interceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
+    }
+
+    @Provides
+    @ChuckerInterceptorQualifier
+    fun provideChuckerInterceptor(@ApplicationContext context: Context): Interceptor {
+        return ChuckerInterceptor(context)
     }
 
     @Provides
