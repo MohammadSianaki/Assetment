@@ -1,6 +1,7 @@
 package com.github.mohammadsianaki.currencyexchange.di
 
 import android.content.Context
+import com.github.mohammadsianaki.currencyexchange.data.remote.api.CurrencyRateApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +12,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.create
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -40,7 +42,7 @@ object NetworkModule {
     @LoggingInterceptor
     fun provideLoggingInterceptor(): Interceptor {
         return HttpLoggingInterceptor().apply {
-            level   = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BODY
         }
     }
 
@@ -49,6 +51,11 @@ object NetworkModule {
         return Cache(
             File(context.cacheDir, CACHE_DIRECTORY), 50L * 1024L * 1024L // 50 MiB
         )
+    }
+
+    @Provides
+    fun provideWebService(retrofit: Retrofit): CurrencyRateApi {
+        return retrofit.create()
     }
 
     private const val BASE_URL = "https://developers.paysera.com/tasks/api/"

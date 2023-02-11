@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 
 
 @Database(entities = [LocalBalanceEntity::class], version = AppDatabase.DB_VERSION)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun balanceDao(): UserBalanceDao
 

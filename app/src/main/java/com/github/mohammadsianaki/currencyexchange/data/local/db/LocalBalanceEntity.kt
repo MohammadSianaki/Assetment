@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 
 
-@Entity
+@Entity(tableName = "user_balance")
 data class LocalBalanceEntity(
     @PrimaryKey val symbol: String,
     @ColumnInfo(name = "amount") val amount: Double,

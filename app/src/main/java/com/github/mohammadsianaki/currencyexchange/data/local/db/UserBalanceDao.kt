@@ -7,7 +7,7 @@ import androidx.room.Query
 
 @Dao
 interface UserBalanceDao {
-    @Query("SELECT * FROM user")
+    @Query("SELECT * FROM user_balance")
     suspend fun getAll(): List<LocalBalanceEntity>
 
     @Insert
