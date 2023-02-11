@@ -3,6 +3,7 @@ package com.github.mohammadsianaki.currencyexchange.di
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.github.mohammadsianaki.currencyexchange.data.remote.api.CurrencyRateApi
+import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +14,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -24,9 +26,14 @@ object NetworkModule {
 
     @Provides
     fun provideRetrofit(
-        okHttpClient: OkHttpClient
+        okHttpClient: dagger.Lazy<OkHttpClient>, moshiConverterFactory: MoshiConverterFactory
     ): Retrofit {
-        return Retrofit.Builder().baseUrl(BASE_URL).client(okHttpClient).build()
+        return Retrofit
+            .Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient.get())
+            .addConverterFactory(moshiConverterFactory)
+            .build()
     }
 
     @Provides
@@ -35,11 +42,8 @@ object NetworkModule {
         @ChuckerInterceptorQualifier chuckerInterceptor: Interceptor,
         cache: Cache
     ): OkHttpClient {
-        return OkHttpClient
-            .Builder()
-            .addInterceptor(loggingInterceptorQualifier)
-            .addInterceptor(chuckerInterceptor)
-            .callTimeout(TIMEOUT_CONNECT, TimeUnit.SECONDS)
+        return OkHttpClient.Builder().addInterceptor(loggingInterceptorQualifier)
+            .addInterceptor(chuckerInterceptor).callTimeout(TIMEOUT_CONNECT, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_READ, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_WRITE, TimeUnit.SECONDS).cache(cache).build()
     }
@@ -56,6 +60,16 @@ object NetworkModule {
     @ChuckerInterceptorQualifier
     fun provideChuckerInterceptor(@ApplicationContext context: Context): Interceptor {
         return ChuckerInterceptor(context)
+    }
+
+    @Provides
+    fun provideMoshi(): Moshi {
+        return Moshi.Builder().build()
+    }
+
+    @Provides
+    fun provideMoshiConverter(moshi: Moshi): MoshiConverterFactory {
+        return MoshiConverterFactory.create(moshi)
     }
 
     @Provides
