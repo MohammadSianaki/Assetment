@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InMemoryExchangeRateDataStore @Inject constructor() : ExchangeRateDataStore {
     private val cachedExchangeRates = MutableStateFlow<Map<String, Double>>(emptyMap())
 
