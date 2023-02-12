@@ -28,21 +28,4 @@ class ExchangeFragment : Fragment() {
             }
         }
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        observeUI()
-    }
-
-    private fun observeUI() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.flowWithLifecycle(
-                viewLifecycleOwner.lifecycle,
-                Lifecycle.State.STARTED
-            ).collect {
-                // Process the value.
-                println("=======> ViewState = $it")
-            }
-        }
-    }
 }

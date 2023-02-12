@@ -11,4 +11,5 @@
     <string name="forbidden_error">Forbidden</string>
     <string name="not_found_error">Not Found</string>
     <string name="not_acceptable_error">Not Acceptable</string>
+    <string name="currency_exchange">Currency Exchange</string>
 </resources>

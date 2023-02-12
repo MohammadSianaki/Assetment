@@ -2,7 +2,6 @@ package com.github.mohammadsianaki.currencyexchange.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mohammadsianaki.currencyexchange.R
 import com.github.mohammadsianaki.currencyexchange.domain.BalanceEntity
+import com.github.mohammadsianaki.currencyexchange.domain.ExchangeRateEntity
 import kotlinx.coroutines.Dispatchers
 
 
@@ -43,8 +43,8 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 }
             }
             item {
-                uiState.exchangeRates.onLoaded {
-                    CurrencyExchange()
+                uiState.exchangeRates.onLoaded { exchangeRateEntities ->
+                    CurrencyExchange(exchangeRateEntities)
                 }
                 uiState.exchangeRates.onLoading {
                     LoadingView()
@@ -64,7 +64,10 @@ private fun LoadingView() {
 
 @Composable
 private fun MyBalances(balanceEntities: List<BalanceEntity>) {
-    Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
         Text(text = stringResource(R.string.my_balances))
         LazyRow {
             itemsIndexed(
@@ -89,8 +92,14 @@ private fun BalanceItem(balanceEntity: BalanceEntity) {
 }
 
 @Composable
-private fun LazyItemScope.CurrencyExchange() {
+private fun CurrencyExchange(exchangeRateEntities: List<ExchangeRateEntity>) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Text(text = stringResource(R.string.currency_exchange))
 
+    }
 }
 
 
