@@ -1,14 +1,15 @@
 package com.github.mohammadsianaki.currencyexchange.presentation.ui.screens
 
 import androidx.lifecycle.viewModelScope
+import com.github.mohammadsianaki.currencyexchange.core_common.Loadable
+import com.github.mohammadsianaki.currencyexchange.core_common.Loaded
+import com.github.mohammadsianaki.currencyexchange.core_common.NotLoaded
 import com.github.mohammadsianaki.currencyexchange.core_common.base.BaseViewModel
-import com.github.mohammadsianaki.currencyexchange.domain.GetAllExchangeRatesUseCase
-import com.github.mohammadsianaki.currencyexchange.domain.GetUserBalanceUseCase
-import com.github.mohammadsianaki.currencyexchange.domain.InitUserBalanceUseCase
-import com.github.mohammadsianaki.currencyexchange.domain.SyncExchangeRatesUseCase
+import com.github.mohammadsianaki.currencyexchange.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,16 +22,19 @@ class ExchangeViewModel @Inject constructor(
     private val syncExchangeRatesUseCase: SyncExchangeRatesUseCase
 ) : BaseViewModel() {
 
-    private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
-            throwable.printStackTrace()
-        }
+    private val _uiState = MutableStateFlow(ViewState())
+    val uiState = _uiState.asStateFlow()
+
+    data class ViewState(
+        val exchangeRates: Loadable<List<ExchangeRateEntity>> = NotLoaded,
+        val userBalance: Loadable<List<BalanceEntity>> = NotLoaded
+    )
 
     init {
-        listenToBalance()
-        listenToExchangeRates()
         initBalance()
         syncExchangeRate()
+        listenToBalance()
+        listenToExchangeRates()
     }
 
     fun foo() {
@@ -38,7 +42,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     private fun initBalance() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             onIO {
                 initUserBalanceUseCase.execute()
             }
@@ -46,31 +50,50 @@ class ExchangeViewModel @Inject constructor(
     }
 
     private fun syncExchangeRate() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             while (isActive) {
                 onIO {
                     syncExchangeRatesUseCase.sync()
                 }
                 onBg {
-                    delay(5000)
+                    delay(LONG_POLLING_DELAY)
                 }
             }
         }
     }
 
     private fun listenToBalance() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             getUserBalanceUseCase.execute().collect {
                 println("==========> user balance observed $it")
+                _uiState.update { oldViewState ->
+                    oldViewState.copy(
+                        userBalance = Loaded(it)
+                    )
+                }
             }
         }
     }
 
     private fun listenToExchangeRates() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             getAllExchangeRatesUseCase.execute().collect {
-                println("==========> exchange rates observed $it")
+                println("==========> collect = $it")
             }
         }
+        viewModelScope.launch {
+            getAllExchangeRatesUseCase.execute().onEach {
+                println("==========> exchange rates observed $it")
+//                _uiState.update { oldViewState ->
+//                    oldViewState.copy(
+//                        exchangeRates = Loaded(it.ma)
+//                    )
+//                }
+            }.launchIn(this)
+        }
+    }
+
+    private companion object {
+        private const val LONG_POLLING_DELAY = 5000L
     }
 }
