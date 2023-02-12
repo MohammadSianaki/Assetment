@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,11 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mohammadsianaki.currencyexchange.R
+import com.github.mohammadsianaki.currencyexchange.domain.BalanceEntity
+import kotlinx.coroutines.Dispatchers
 
 
 @Composable
-fun ExchangeScreen() {
+fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
+    val uiState =
+        exchangeViewModel.uiState.collectAsStateWithLifecycle(context = Dispatchers.Main.immediate).value
     Scaffold(topBar = { AppTitle() }, bottomBar = { SubmitButton(onClick = {}) }) {
         LazyColumn(
             modifier = Modifier
@@ -27,25 +35,56 @@ fun ExchangeScreen() {
             verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.Top)
         ) {
             item {
-                MyBalances()
+                uiState.userBalance.onLoaded { balanceEntities ->
+                    MyBalances(balanceEntities)
+                }
+                uiState.userBalance.onLoading {
+                    LoadingView()
+                }
             }
             item {
-                CurrencyExchange()
+                uiState.exchangeRates.onLoaded {
+                    CurrencyExchange()
+                }
+                uiState.exchangeRates.onLoading {
+                    LoadingView()
+                }
             }
         }
     }
 }
 
+@Composable
+private fun LoadingView() {
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
 
 @Composable
-private fun LazyItemScope.MyBalances() {
+private fun MyBalances(balanceEntities: List<BalanceEntity>) {
     Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
         Text(text = stringResource(R.string.my_balances))
         LazyRow {
-            items(10) {
-                Text(text = "1000.00 EUR")
+            itemsIndexed(
+                items = balanceEntities,
+                key = { index: Int, item: BalanceEntity -> index },
+            ) { index: Int, item: BalanceEntity ->
+                BalanceItem(balanceEntity = item)
             }
         }
+    }
+}
+
+@Composable
+private fun BalanceItem(balanceEntity: BalanceEntity) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
+    ) {
+        Text(text = balanceEntity.amount.toString())
+        Text(text = balanceEntity.symbol)
     }
 }
 
